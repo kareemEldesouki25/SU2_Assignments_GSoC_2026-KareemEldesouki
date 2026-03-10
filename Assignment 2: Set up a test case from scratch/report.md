@@ -10,6 +10,7 @@
 ## At a Glance
 This report details the steady-state, axisymmetric simulation of a turbulent water jet at **Re = 2000**. The study validates incompressible RANS against Particle Image Velocimetry (PIV) experiments by C. Fukushima et al. This benchmark serves to evaluate turbulence modeling performance in free shear flows within the SU2 framework.
 
+<img width="581" height="265" alt="Screenshot from 2026-03-10 02-42-53" src="https://github.com/user-attachments/assets/3e4da970-9af7-4b59-a6cf-5e74766c6876" />
 
 ## Motivation for Setup
 The axisymmetric turbulent jet is a foundational CFD benchmark. It provides a rigorous test for mesh resolution, turbulence model accuracy, and the influence of boundary conditions in free shear layers. 
