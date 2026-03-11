@@ -1,7 +1,7 @@
 ## Assignment 3: Python Wrapper Test Case
 
 ![Flat Plate](https://github.com/user-attachments/assets/52f95353-fc62-4bd0-9223-4546da7eab5e)
-*GIF.1: Temperature contours animation oflver 1.0 second.*
+*GIF.1: Temperature contours animation over 1.0 second.*
 
 **Successfully configured SU2 with Python wrapper and recompiled.**
 
