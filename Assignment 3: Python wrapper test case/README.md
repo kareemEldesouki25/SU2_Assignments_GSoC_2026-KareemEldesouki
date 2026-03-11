@@ -2,6 +2,7 @@
 
 ![Flat Plate](https://github.com/user-attachments/assets/52f95353-fc62-4bd0-9223-4546da7eab5e)
 *GIF.1: Temperature contours animation oflver 1.0 second.*
+
 **Successfully configured SU2 with Python wrapper and recompiled.**
 
 - Built SU2 v8.4.0 "Harrier" from source with `-Denable-pywrapper=true`
