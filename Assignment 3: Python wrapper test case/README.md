@@ -6,7 +6,6 @@
 **Successfully configured SU2 with Python wrapper and recompiled.**
 
 - Built SU2 v8.4.0 "Harrier" from source with `-Denable-pywrapper=true`
-- Resolved `mpi4py/mpi4py.i` SWIG compilation issues 
 
 **Pulled flat plate test case and simulated Python wrapper code with modifications to extend simulation time.**
 
