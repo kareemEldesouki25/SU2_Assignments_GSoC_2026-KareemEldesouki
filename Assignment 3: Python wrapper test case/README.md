@@ -1,6 +1,7 @@
 ## Assignment 3: Python Wrapper Test Case
 
 **Successfully configured SU2 with Python wrapper and recompiled.**
+![Flat Plate](https://github.com/user-attachments/assets/52f95353-fc62-4bd0-9223-4546da7eab5e)
 
 - Built SU2 v8.4.0 "Harrier" from source with `-Denable-pywrapper=true`
 - Resolved `mpi4py/mpi4py.i` SWIG compilation issues 
