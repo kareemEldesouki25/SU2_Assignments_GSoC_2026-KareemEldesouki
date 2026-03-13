@@ -1,20 +1,41 @@
 ## Problem definition 
+Enable a spatially varying wall temperature for a steady-state compressible turbulent flat plate testcase in SU2 using python wrapper
 
+### Thermal Boundary Condition
+A linear temperature ramp was implemented using the SU2 Python wrapper. The temperature varies from $293.15 \text{K}$ at the inlet to $350 \text{K}$ at the outlet ($x = 0.035 \text{m}$), governed by:
+$$T_{wall}(x) = 293.15 + 56.85 \cdot \left(\frac{x}{0.035}\right)$$
 
-![Temperature Variation](Results/Temperature%20variation.png)
-## Results:
+This was achieved by extracting the marker coordinates using the `.MarkerCoordinates` method and mapping the local $x$-position to the target temperature at every iteration.
 
-## Simulation Results
-
-### Flow Residuals
-![Flow Residuals](Results/Riseduals%20Assignment%204.png)
+<img src="Results/Temperature%20variation.png" alt="Fig.1 Temperature Variation" width="50%">
+## 2. Simulation Results
+The simulation reached the convergence criteria at iteration **388**. The density residual successfully reached the target order of magnitude of $10^{-6}$.
 
 ### Temperature Distribution
-![Temperature Distribution](Results/Temperature.png)
+<img src="Results/Temperature.png" alt="Fig.1 Temperature" width="50%">
+
+### Final Convergence State
+| Variable | Header | Final Residual ($\log_{10}$) |
+| :--- | :--- | :---: |
+| **Density** | `rms[Rho]` | **-6.00** |
+| **Momentum (u)** | `rms[RhoU]` | -3.86 |
+| **Momentum (v)** | `rms[RhoV]` | -3.89 |
+| **Energy** | `rms[RhoE]` | -1.67 |
+| **Turb. Kinetic Energy** | `rms[k]` | -3.47 |
+| **Spec. Dissipation** | `rms[w]` | +0.45 |
+
+### Convergence History
+The plot below shows the decay of residuals. Note that while Density reached the target, the turbulence and energy residuals stabilized at higher values.
+
+![Flow Residuals](Results/Riseduals%20Assignment%204.png)
+
 
 ### Velocity Distribution
 ![Velocity Distribution](Results/Velocity.png)
-''' 
+
+## 3. Appendix: Python Wrapper Implementation
+The following implementation extracts the marker coordinates and injects the custom temperature field into the solver at each iteration step.
+
 # Main iteration loop
   while (iIter < max_iterations):
     # 1. Preprocess the current iteration
@@ -59,3 +80,4 @@
     
     iIter += 1
     '''
+
