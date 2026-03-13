@@ -1,6 +1,15 @@
 ## Results:
 
+## Simulation Results
 
+### Flow Residuals
+![Flow Residuals](Results/Riseduals%20Assignment%204.png)
+
+### Temperature Distribution
+![Temperature Distribution](Results/Temperature.png)
+
+### Velocity Distribution
+![Velocity Distribution](Results/Velocity.png)
 ''' 
 # Main iteration loop
   while (iIter < max_iterations):
