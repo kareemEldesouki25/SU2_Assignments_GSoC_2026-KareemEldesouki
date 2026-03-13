@@ -1,8 +1,7 @@
 ## Problem definition 
 
 
-![Temperation variation](Results/Temperature%variation.png)
-
+![Temperature Variation](Assignment%204%3A%20Modification%20of%20the%20python%20wrapper%20setup/Results/Temperature%20variation.png)
 ## Results:
 
 ## Simulation Results
