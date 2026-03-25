@@ -2,7 +2,7 @@
 # Assignment 2: Axisymmetric Turbulent Jet Simulation with SU2
 
 **Solver:** INC_RANS  
-**Version:** SU2_CFD 7.4.0 "Harrier"  
+**Version:** SU2_CFD 8.4.0 "Harrier"  
 **Author:** Kareem A. Eldesouki  
 
 ---
