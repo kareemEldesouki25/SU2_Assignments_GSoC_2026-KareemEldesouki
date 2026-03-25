@@ -72,7 +72,8 @@ While I explored an adaptive CFL strategy—testing across a range of values ($0
 
 ## Results and Discussion
 
-Experimental data indicate that the "potential core" of the jet is preserved for approximately **6D**. The SU2 is quite close to these findings:
+Experimental data in<img width="1102" height="469" alt="Screenshot from 2026-03-25 12-36-39" src="https://github.com/user-attachments/assets/620c5e97-106d-4188-be59-1b3aa8e52f19" />
+dicate that the "potential core" of the jet is preserved for approximately **6D**. The SU2 is quite close to these findings:
 
 <img width="1629" height="881" alt="Screenshot from 2026-03-10 02-14-22" src="https://github.com/user-attachments/assets/1ff74b54-ea78-4f27-82c0-3a18a5f3b2af" />
 
@@ -86,6 +87,8 @@ Experimental data indicate that the "potential core" of the jet is preserved for
 While PIV data includes cross-jet profiles, my simulation focused on axial evolution. Perfect cross-profile mapping would require localized mesh refinement at the nozzle; however, I chose to just validate with normalized axial velocity, as the primary goal of this assignment is to get familiar with the SU2 framework.
 
 ## Modified Meshing and verifications
+<img width="1102" height="469" alt="Screenshot from 2026-03-25 12-36-39" src="https://github.com/user-attachments/assets/ac5dc407-d9d9-4729-8a1a-7ed741cac1a4" />
+Convergence history of the modified mesh refineletn aronf the jet diameter
 
 ## Lessons Learned
 
