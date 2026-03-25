@@ -10,4 +10,6 @@
 
 ## Results and graphs
 
+## Lessons learned about source code structure
+
 ## Lessons learned from compressible solver
