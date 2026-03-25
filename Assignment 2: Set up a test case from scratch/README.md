@@ -31,7 +31,6 @@ The domain was divided into three structured regions for quad generation, result
 
 <img width="763" height="547" alt="Screenshot from 2026-03-10 01-05-20" src="https://github.com/user-attachments/assets/386e0606-e092-4ad5-b1f8-bf1421790490" />
 
-
 ## Configuration Summary
 ```ini
 % --- SOLVER SETTINGS ---
@@ -85,6 +84,8 @@ Experimental data indicate that the "potential core" of the jet is preserved for
 
    
 While PIV data includes cross-jet profiles, my simulation focused on axial evolution. Perfect cross-profile mapping would require localized mesh refinement at the nozzle; however, I chose to just validate with normalized axial velocity, as the primary goal of this assignment is to get familiar with the SU2 framework.
+
+## Modified Meshing and verifications
 
 ## Lessons Learned
 
