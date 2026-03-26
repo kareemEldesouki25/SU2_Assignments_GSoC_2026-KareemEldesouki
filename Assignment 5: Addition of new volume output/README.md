@@ -1,11 +1,10 @@
 # Assignment 5: Addition of New Volume Output
 ## Local Speed of Sound in SU2
-**Computational Fluid Dynamics | SU2 Solver Modification**
 
 ---
 
 ## 1. Objective
-This assignment required extending the SU2 CFD solver to output the local speed of sound as a new field in both the volume output (ParaView `.vtu` files) and the screen/history output. The turbulent test case (RANS SST, compressible flow) was then re-run with these new outputs enabled.
+This assignment required extending the SU2 CFD solver to output the local speed of sound as a new field in both the volume output (ParaView `.vtu` files) and the screen/history output. I used the incompressible turbulence test case configured in Assignment 1 and adapted it for a compressible jet simulation. The turbulence test case (RANS SST, compressible flow) was then re-run with these new outputs enabled.
 
 ---
 
@@ -21,7 +20,9 @@ Where:
 * $R$ is the specific gas constant.
 * $T$ is the static temperature.
 
-For air at standard conditions (~15°C), this evaluates to approximately **340 m/s**, which is confirmed by the simulation results. The SU2 compressible flow solver already computes this quantity internally at every node. The task was to expose this pre-computed value through the output infrastructure.
+For air at standard conditions (~15°C), this evaluates to approximately **340 m/s**, which is confirmed by the simulation results. The SU2 compressible flow solver already computes this quantity internally at every node.
+
+In SU2, the speed of sound is typically calculated within the fluid model classes. For a compressible RANS simulation, this is handled in `src/models/fluid_model.cpp` (or specifically `CIdGas::GetSoundSpeed` for ideal gases).
 
 ---
 
@@ -41,6 +42,8 @@ The primary file modified was: `SU2_CFD/src/output/CFlowCompOutput.cpp`. This fi
 In `SetVolumeOutputFields()`, the field was registered under the `PRIMITIVE` group (line ~240):
 
 ```cpp
+iside the void `CFlowCompOutput::SetVolumeOutputFields(CConfig *config){}` finction add the volume field for the local speed of sound
+
 // Existing Mach number field (reference):
 AddVolumeOutput("MACH", "Mach", "PRIMITIVE", "Mach number");
 
@@ -49,7 +52,8 @@ AddVolumeOutput("SOUND_SPEED", "Sound_Speed", "PRIMITIVE", "Local speed of sound
 ```
 
 ### 3.3 Edit 2 — Volume Output Value Loading
-In `LoadVolumeData()`, the per-node speed of sound value is loaded (line ~340):
+In `LoadVolumeData()`, the per-node speed of sound value is loaded :
+`void CFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolver **solver, unsigned long iPoint)`
 
 ```cpp
 // Existing Mach loading (reference):
@@ -78,22 +82,19 @@ In `LoadHistoryData()`, a domain-averaged speed of sound is computed with MPI re
 
 ```cpp
 su2double AvgSoundSpeed = 0.0;
-unsigned long nPointDomain = geometry->GetnPointDomain();
-
-for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
-    AvgSoundSpeed += solver[FLOW_SOL]->GetNodes()->GetSoundSpeed(iPoint);
-}
-
-SU2_MPI::Allreduce(&AvgSoundSpeed, &AvgSoundSpeed, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
-
-unsigned long nPointGlobal = geometry->GetGlobal_nPointDomain();
-SetHistoryOutputValue("SOUND_SPEED", AvgSoundSpeed / nPointGlobal);
+  unsigned long nPointDomain = geometry->GetnPointDomain();
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
+      AvgSoundSpeed += solver[FLOW_SOL]->GetNodes()->GetSoundSpeed(iPoint);
+  }
+  SU2_MPI::Allreduce(&AvgSoundSpeed, &AvgSoundSpeed, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  unsigned long nPointGlobal = geometry->GetGlobal_nPointDomain();
+  SetHistoryOutputValue("SOUND_SPEED", AvgSoundSpeed / nPointGlobal);
 ```
 
 ---
 
 ## 4. Configuration File Settings
-The following settings were modified in `Sym_jet.cfg`:
+To add the local sound speed to our screen output, the following settings were modified in `Sym_jet_Comp.cfg`:
 
 ```ini
 % Screen output columns
@@ -106,16 +107,28 @@ VOLUME_OUTPUT= PRIMITIVE
 HISTORY_OUTPUT= ITER, RMS_RES, FLOW_COEFF
 ```
 
+I modified the boundary conditions and meshing as follows:
+The pressure ratio is 
+```
+MARKER_OUTLET= ( outlet, 101325, farfield, 101325 )
+INLET_TYPE= TOTAL_CONDITIONS
+MARKER_INLET= ( inlet, 300, 154490, 1, 0, 0 )
+```
+
 ---
 
 ## 5. Build Procedure
-SU2 was recompiled using Meson and Ninja with MPI disabled to resolve system compatibility issues:
+After modifying the source code, SU2 needs to be recompiled using Meson and Ninja:
 
 ```bash
 cd ~/SU2
+# 1. Remove the old build directory to avoid stale object conflicts
 rm -rf build
+# 2. Reconfigure the project with your desired settings
 python3 meson.py build --prefix=$HOME/SU2/install -Dwith-mpi=disabled
+# 3. Compile the new source code
 ninja -C build
+# 4. Install the new binary to your local folder
 ninja -C build install
 ```
 
@@ -123,18 +136,9 @@ ninja -C build install
 
 ## 6. History Output Results
 The new `Avg_SoundSpeed` column appeared in the screen output:
+<img width="770" height="465" alt="image" src="https://github.com/user-attachments/assets/3fbece88-432a-4d2b-9211-abe96f5685af" />
 
-| Inner_Iter | rms[Rho] | rms[RhoU] | rms[RhoE] | Avg_SoundSpeed (m/s) |
-| :--- | :--- | :--- | :--- | :--- |
-| 0 | -1.3552 | 0.8273 | 4.2393 | 3.4048e+02 |
-| 1 | -1.4113 | 0.7975 | 4.2091 | 3.4046e+02 |
-| 2 | -1.4803 | 0.7535 | 4.1618 | 3.4043e+02 |
-| 3 | -1.5712 | 0.6925 | 4.0877 | 3.4039e+02 |
-| 4 | -1.6868 | 0.6203 | 3.9779 | 3.4035e+02 |
-| 5 | -1.7532 | 0.5717 | 3.8934 | 3.4031e+02 |
-| 6 | -1.7393 | 0.5569 | 3.8999 | 3.4029e+02 |
-
-The domain-averaged speed of sound converges to **~340.3 m/s**, consistent with standard air conditions.
+The domain-averaged speed of sound converges to **~340 m/s**, consistent with standard air conditions.
 
 ---
 
@@ -147,6 +151,9 @@ To visualize the spatial distribution:
 Regions of higher temperature (near the jet core) show higher speed of sound values ($a \propto \sqrt{T}$), while the ambient region shows the reference value.
 
 **Figure 1:** Local speed of sound contour (Sound_Speed field) over the turbulent jet domain.
+<img width="602" height="204" alt="sound" src="https://github.com/user-attachments/assets/2d3e0237-1901-44ef-afbf-1f48f2a8cfc5" />
+
+**Figure 2:** Velocity filed over the turbulent jet domain.
 
 ---
 
@@ -163,4 +170,7 @@ Regions of higher temperature (near the jet core) show higher speed of sound val
 
 ---
 
-**End of Report**
+**Lessons learned**
+
+1- Implementing a new output field in SU2 involves bridging the gap between the physics kernels (where the math happens) and the output classes (where data is formatted for ParaView). Not all variables are displayed in the output
+2- Learned about functions in the CFlowOutput class
