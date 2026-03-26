@@ -29,7 +29,13 @@ To allow for natural jet development without causing backflow at boundaries, the
 
 The domain was divided into three structured regions for quad generation, resulting in a total of **16,030 elements**.
 
-<img width="763" height="547" alt="Screenshot from 2026-03-10 01-05-20" src="https://github.com/user-attachments/assets/386e0606-e092-4ad5-b1f8-bf1421790490" />
+<img width="363" height="547" alt="Screenshot from 2026-03-10 01-05-20" src="https://github.com/user-attachments/assets/386e0606-e092-4ad5-b1f8-bf1421790490" />
+
+<img width="602" alt="mesh ref" src="https://github.com/user-attachments/assets/aca321ab-4f8d-4afb-8aa6-151985cddbe5" />
+
+<img width="1002" height="209" alt="mesh" src="https://github.com/user-attachments/assets/7f28ce84-f6d4-4f54-80d4-a798eb2ee7e6" />
+
+
 
 ## Configuration Summary
 ```ini
