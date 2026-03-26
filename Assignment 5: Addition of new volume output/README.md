@@ -1,5 +1,8 @@
 # Assignment 5: Addition of New Volume Output
 ## Local Speed of Sound in SU2
+**Solver:** RANS  
+**Version:** SU2_CFD 8.4.0 "Harrier"  
+**Author:** Kareem A. Eldesouki  
 
 ---
 
@@ -20,7 +23,7 @@ Where:
 * $R$ is the specific gas constant.
 * $T$ is the static temperature.
 
-For air at standard conditions (~15°C), this evaluates to approximately **340 m/s**, which is confirmed by the simulation results. The SU2 compressible flow solver already computes this quantity internally at every node.
+For air at standard conditions (~300°K), this evaluates to approximately **340 m/s**, which is confirmed by the simulation results. The SU2 compressible flow solver already computes this quantity internally at every node.
 
 In SU2, the speed of sound is typically calculated within the fluid model classes. For a compressible RANS simulation, this is handled in `src/models/fluid_model.cpp` (or specifically `CIdGas::GetSoundSpeed` for ideal gases).
 
@@ -39,32 +42,29 @@ The primary file modified was: `SU2_CFD/src/output/CFlowCompOutput.cpp`. This fi
 | `CFlowIncOutput` | `CFlowIncOutput.cpp` | Incompressible solver (not modified) |
 
 ### 3.2 Edit 1 — Volume Output Registration
-In `SetVolumeOutputFields()`, the field was registered under the `PRIMITIVE` group (line ~240):
+In `void CFlowCompOutput::SetVolumeOutputFields()`, the field was registered under the `PRIMITIVE` group (line ~240):
 
 ```cpp
-iside the void `CFlowCompOutput::SetVolumeOutputFields(CConfig *config){}` finction add the volume field for the local speed of sound
-
 // Existing Mach number field (reference):
 AddVolumeOutput("MACH", "Mach", "PRIMITIVE", "Mach number");
 
-// NEW: Speed of sound volume field
+// ADDED: Speed of sound volume field
 AddVolumeOutput("SOUND_SPEED", "Sound_Speed", "PRIMITIVE", "Local speed of sound");
 ```
 
 ### 3.3 Edit 2 — Volume Output Value Loading
-In `LoadVolumeData()`, the per-node speed of sound value is loaded :
-`void CFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolver **solver, unsigned long iPoint)`
+In `void CFlowCompOutput::LoadVolumeData`, the per-node speed of sound value is loaded :
 
 ```cpp
 // Existing Mach loading (reference):
 SetVolumeOutputValue("MACH", iPoint, sqrt(Node_Flow->GetVelocity2(iPoint)) / Node_Flow->GetSoundSpeed(iPoint));
 
-// NEW: Load pre-computed sound speed at each node
+// ADDED: Load pre-computed sound speed at each node
 SetVolumeOutputValue("SOUND_SPEED", iPoint, Node_Flow->GetSoundSpeed(iPoint));
 ```
 
 ### 3.4 Edit 3 — History Output Registration
-In `SetHistoryOutputFields()`, the new history/screen column was registered (line ~145):
+In `void CFlowCompOutput::SetHistoryOutputFields()`, the new history/screen column was registered (line ~145):
 
 ```cpp
 AddHistoryOutput(
@@ -78,7 +78,7 @@ AddHistoryOutput(
 ```
 
 ### 3.5 Edit 4 — History Output Value Computation
-In `LoadHistoryData()`, a domain-averaged speed of sound is computed with MPI reduction (line ~490):
+In `void CFlowCompOutput::LoadHistoryData()`, a domain-averaged speed of sound is computed with MPI reduction (line ~490):
 
 ```cpp
 su2double AvgSoundSpeed = 0.0;
@@ -93,31 +93,7 @@ su2double AvgSoundSpeed = 0.0;
 
 ---
 
-## 4. Configuration File Settings
-To add the local sound speed to our screen output, the following settings were modified in `Sym_jet_Comp.cfg`:
-
-```ini
-% Screen output columns
-SCREEN_OUTPUT= INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_ENERGY, SOUND_SPEED
-
-% Volume output groups for ParaView
-VOLUME_OUTPUT= PRIMITIVE
-
-% History file output groups
-HISTORY_OUTPUT= ITER, RMS_RES, FLOW_COEFF
-```
-
-I modified the boundary conditions and meshing as follows:
-The pressure ratio is 
-```
-MARKER_OUTLET= ( outlet, 101325, farfield, 101325 )
-INLET_TYPE= TOTAL_CONDITIONS
-MARKER_INLET= ( inlet, 300, 154490, 1, 0, 0 )
-```
-
----
-
-## 5. Build Procedure
+## 4. Build Procedure
 After modifying the source code, SU2 needs to be recompiled using Meson and Ninja:
 
 ```bash
@@ -134,6 +110,29 @@ ninja -C build install
 
 ---
 
+## 5. Configuration File Settings
+To add the local sound speed to our screen output, the following settings were modified in `Sym_jet_Comp.cfg`:
+
+```ini
+% Screen output columns
+SCREEN_OUTPUT= INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_ENERGY, SOUND_SPEED
+
+% Volume output groups for ParaView
+VOLUME_OUTPUT= PRIMITIVE
+
+% History file output groups
+HISTORY_OUTPUT= ITER, RMS_RES, FLOW_COEFF
+```
+
+I also modified the boundary conditions for a compressible jet:
+**Pressure Ratio ($P_t / P_{static}$):** Approximately **1.524**
+```
+MARKER_OUTLET= ( outlet, 101325, farfield, 101325 )
+INLET_TYPE= TOTAL_CONDITIONS
+MARKER_INLET= ( inlet, 300, 154490, 1, 0, 0 )
+```
+
+---
 ## 6. History Output Results
 The new `Avg_SoundSpeed` column appeared in the screen output:
 <img width="770" height="465" alt="image" src="https://github.com/user-attachments/assets/3fbece88-432a-4d2b-9211-abe96f5685af" />
@@ -146,31 +145,39 @@ The domain-averaged speed of sound converges to **~340 m/s**, consistent with st
 To visualize the spatial distribution:
 * Open the `.vtu` file in ParaView.
 * Select `Sound_Speed` from the field list.
-* Apply a "Cool to Warm" color map.
 
-Regions of higher temperature (near the jet core) show higher speed of sound values ($a \propto \sqrt{T}$), while the ambient region shows the reference value.
+The simulation reveals that the jet core possesses a **lower speed of sound** than the ambient medium. This is consistent with isentropic flow theory: as the fluid accelerates from the inlet stagnation state (`INLET_TYPE= TOTAL_CONDITIONS` $T_t = 300\text{ K}$ ) to the high-velocity jet plume, internal energy is converted into kinetic energy. 
 
-**Figure 1:** Local speed of sound contour (Sound_Speed field) over the turbulent jet domain.
+This results in a decrease in **static temperature** ($T$) within the jet. Since the speed of sound is defined as $a = \sqrt{\gamma R T}$, the cooler, fast-moving jet core naturally exhibits a lower acoustic velocity compared to the stagnant ambient air.
+<div align="center">
+<br>
+Figure 1: Zoomed-in local speed of sound contour.
+<br>
+<img width="602" height="204" alt="sss" src="https://github.com/user-attachments/assets/f2ad414c-82f1-496d-b8cf-e629ba17af4e" />
+<br>
+<br>
+Figure 2: Local speed of sound contour (Sound_Speed field) over the turbulent jet domain.
+<br>
 <img width="602" height="204" alt="sound" src="https://github.com/user-attachments/assets/2d3e0237-1901-44ef-afbf-1f48f2a8cfc5" />
-
-**Figure 2:** Velocity filed over the turbulent jet domain.
-
+<br>
+<br>
+Figure 3: Velocity field over the turbulent jet domain.
+<br>
+<img width="602" height="204" alt="velocity" src="https://github.com/user-attachments/assets/76424508-e45e-4365-a15d-240e2f095645" />
+<br>
+</div>
 ---
 
-## 8. Summary of Changes
 
-| File | Function | Change Made |
-| :--- | :--- | :--- |
-| `CFlowCompOutput.cpp` | `SetVolumeOutputFields()` | Added `SOUND_SPEED` under `PRIMITIVE` group |
-| `CFlowCompOutput.cpp` | `LoadVolumeData()` | Mapped `GetSoundSpeed(iPoint)` to volume output |
-| `CFlowCompOutput.cpp` | `SetHistoryOutputFields()` | Registered `SOUND_SPEED` for history/screen |
-| `CFlowCompOutput.cpp` | `LoadHistoryData()` | Added domain-average calculation with MPI |
-| `Sym_jet.cfg` | `SCREEN_OUTPUT` | Included `SOUND_SPEED` in display |
-| `Sym_jet.cfg` | `VOLUME_OUTPUT` | Set to `PRIMITIVE` to include new field |
+## 8. Lessons Learned
 
----
+### 8.1 Lessons related to SU2 Output Architecture
 
-**Lessons learned**
+- The solver computes quantities like sound speed internally at every node, but each field must be explicitly registered in `SetVolumeOutputFields()` and loaded in `LoadVolumeData()` before it appears in any output.
+- The output system is solver-specific — `CFlowCompOutput` handles compressible cases separately from `CFlowIncOutput`, so it matters which class you are editing. Once I understood that structure, the four required edits were straightforward to locate.
 
-1- Implementing a new output field in SU2 involves bridging the gap between the physics kernels (where the math happens) and the output classes (where data is formatted for ParaView). Not all variables are displayed in the output
-2- Learned about functions in the CFlowOutput class
+### 8.2 What I learned to get a converged compressible simulation setting
+The more time-consuming part of this assignment was not the output implementation — it was getting the compressible jet case to converge, and finally i was able to get the proper configuration summarized as below.
+- **Boundary condition type matters more than expected.** Trying different inlet types — velocity inlet and mass flow rate — led to significant instability. The stable configuration required `INLET_TYPE= TOTAL_CONDITIONS` paired with the correct initialisation strategy described below.
+- **Freestream initialisation.** My initial approach was to set `MACH_NUMBER= 0.001` to define the freestream state. This works for incompressible cases but breaks down in compressible simulations — at such a low Mach number the solver initialises a near-zero velocity field, which immediately causes instability. The fix was `INIT_OPTION= TD_CONDITIONS` with explicit static P = 101,325 Pa and T = 300 K, which lets the solver construct a consistent initial field from first principles. In the final working configuration `MACH_NUMBER` is set to `1E-9` — effectively a dummy value since `TD_CONDITIONS` takes over the initialisation entirely.
+- **Convective scheme.** For this jet case, ROE + MUSCL with no limiter was unstable in the high velocity regions of the jet core. Reading into both schemes, the key difference is that JST carries built-in artificial dissipation which stabilises the solution across the wide Mach range present in a jet — from the stagnant ambient all the way through the accelerating core — whereas ROE with no limiter has no such mechanism. Switching to JST gave a stable solution.
