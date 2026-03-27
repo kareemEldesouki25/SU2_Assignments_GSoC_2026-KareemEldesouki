@@ -39,5 +39,3 @@ save_frequency = 10  # Save every 10 iterations
 if (TimeIter % save_frequency == 0):
     SU2Driver.Output(TimeIter)
 ```
-
-### 3. Lessons learned
