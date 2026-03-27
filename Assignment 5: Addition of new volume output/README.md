@@ -9,6 +9,7 @@
 ## 1. Objective
 This assignment required extending the SU2 CFD solver to output the local speed of sound as a new field in both the volume output (ParaView `.vtu` files) and the screen/history output. I used the incompressible turbulence test case configured in Assignment 1 and adapted it for a compressible jet simulation. The turbulence test case (RANS SST, compressible flow) was then re-run with these new outputs enabled.
 
+
 ---
 
 ## 2. Theoretical Background
@@ -149,7 +150,12 @@ To visualize the spatial distribution:
 The simulation reveals that the jet core possesses a **lower speed of sound** than the ambient medium. This is consistent with isentropic flow theory: as the fluid accelerates from the inlet stagnation state (`INLET_TYPE= TOTAL_CONDITIONS` $T_t = 300\text{ K}$ ) to the high-velocity jet plume, internal energy is converted into kinetic energy. 
 
 This results in a decrease in **static temperature** ($T$) within the jet. Since the speed of sound is defined as $a = \sqrt{\gamma R T}$, the cooler, fast-moving jet core naturally exhibits a lower acoustic velocity compared to the stagnant ambient air.
+
 <div align="center">
+<br>
+<img width="697" alt="image" src="https://github.com/user-attachments/assets/07bae947-06fd-40eb-9805-3d3f7ae6fb07" />
+<p><em>Figure: Local sound speed along symmetric line of the jet</em></p>
+<br>
 <br>
 Figure 1: Zoomed-in local speed of sound contour.
 <br>
