@@ -10,7 +10,8 @@
 ## At a Glance
 This report details the steady-state, axisymmetric simulation of a turbulent water jet at **Re = 2000**. The study validates incompressible RANS against Particle Image Velocimetry (PIV) experiments by C. Fukushima et al. This benchmark serves to evaluate turbulence modeling performance in free shear flows within the SU2 framework.
 
-<img width="581" height="265" alt="Screenshot from 2026-03-10 02-42-53" src="https://github.com/user-attachments/assets/3e4da970-9af7-4b59-a6cf-5e74766c6876" />
+<img width="2106" height="1114" alt="image" src="https://github.com/user-attachments/assets/f70b9a4c-38b5-4c91-a8fa-d82e93878a56" />
+
 
 ## Motivation for Setup
 The axisymmetric turbulent jet is a foundational CFD benchmark. It provides a rigorous test for mesh resolution, turbulence model accuracy, and the influence of boundary conditions in free shear layers. 
@@ -75,7 +76,7 @@ While I explored an adaptive CFL strategy—testing across a range of values ($0
 
 <img width="1291" height="990" alt="image" src="https://github.com/user-attachments/assets/85532467-b9cd-46d4-8f16-465b0e2097e7" />
 
-## Results and Discussion
+## Results and Validation
 
 Experimental data indicate that the "potential core" of the jet is preserved for approximately **6D**. The SU2 is quite close to these findings:
 
@@ -90,13 +91,25 @@ Experimental data indicate that the "potential core" of the jet is preserved for
    
 While PIV data includes cross-jet profiles, my simulation focused on axial evolution. Perfect cross-profile mapping would require localized mesh refinement at the nozzle; however, I chose to just validate with normalized axial velocity, as the primary goal of this assignment is to get familiar with the SU2 framework.
 
+**Self-preserving jet**
+
+<img width="2054" height="1202" alt="Screenshot from 2026-03-27 20-40-19" src="https://github.com/user-attachments/assets/141d7dc5-2e34-49f5-90f6-91a60258b9cb" />
+
+
+<img width="1842" height="1165" alt="Figure_1" src="https://github.com/user-attachments/assets/9754ee57-f839-4817-9b80-e47c8a8dcc44" />
+
+
 ## Modified Meshing and verifications
 <img width="1102" height="469" alt="Screenshot from 2026-03-25 12-36-39" src="https://github.com/user-attachments/assets/ac5dc407-d9d9-4729-8a1a-7ed741cac1a4" />
-Convergence history of the modified mesh refineletn aronf the jet diameter
+Convergence history of the modified mesh refinement around the jet diameter. Note the oscilating convergence at the end where the riseduals oscilates withing a certain range, this was found to be due to the need for more downstream domain for example, the used case was the downstream was 400 times the diamter, however for the following case the downstream lengthwas increased to 1100 times diameter and also the lateral domain was doubled to allow for pressure dissipation and avoid any adverse pressures at the boundaries.
+
+<img width="1773" height="1144" alt="image" src="https://github.com/user-attachments/assets/5bb31971-7cab-4b41-a926-3ac9f0e65e9f" />
+also using the fine mesh allowed the use of higher CFL numbers, which speeds up convergence
+
 
 ## Lessons Learned
 
-* **Reference Velocity:** SU2 utilizes the initialization velocity as a reference; this must be carefully considered when setting up ambient flow conditions. Als,o thimakeske it very difficult to reach near flow velocity for the farfield condition in external flow.
+* **Reference Velocity:** SU2 utilizes the initialization velocity as a reference; this must be carefully considered when setting up ambient flow conditions. Also, this makes it very difficult to reach the near flow velocity for the farfield condition in external flow.
 * **Boundary Proximity:** Far-field boundaries must be sufficiently distant to ensure the jet decays naturally, preventing unphysical backflow that causes oscillations.
 * **Stability Tip:** The inclusion of an **upstream section** is vital. It accounts for the "suction" effect created by the jet entrainment. Without this extra buffer, backflow at the inlet often causes divergence or unphysical results.
 * * **CFL Courant number:** for a refined mesh, the simulation is more stable at higher CFL numbers
