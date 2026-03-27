@@ -7,12 +7,14 @@ $$T_{wall}(x) = 293.15 + 56.85 \cdot \left(\frac{x}{0.035}\right)$$
 
 This was achieved by extracting the marker coordinates using the `.MarkerCoordinates` method and mapping the local $x$-position to the target temperature at every iteration.
 
-<img src="Results/Temperature%20variation.png" alt="Fig.1 Temperature Variation" width="50%">
 ## 2. Simulation Results
 The simulation reached the convergence criteria at iteration **388**. The density residual successfully reached the target order of magnitude of $10^{-6}$.
 
 ### Temperature Distribution
-<img src="Results/Temperature.png" alt="Fig.1 Temperature" width="50%">
+<img width="1403" height="835" alt="Screenshot from 2026-03-28 00-17-19" src="https://github.com/user-attachments/assets/6d436260-2e59-426e-a52f-e6de4a252ad4" />
+
+*Figure 1 — spatial variation in Temperature over the plate (Defined correctly).*
+<img width="700"  src="Results/Temperature.png" alt="Fig.1 Temperature" width="50%">
 
 ### Final Convergence State
 | Variable | Header | Final Residual ($\log_{10}$) |
