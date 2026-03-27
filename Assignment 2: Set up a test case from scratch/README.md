@@ -71,15 +71,13 @@ As we are aiming to get steady-state averaged values, I used the SST RANS model 
 
 ## Convergence
 
-While I explored an adaptive CFL strategy—testing across a range of values ($0.1, 1, 2,$ and $10$)—the results showed negligible improvements in either convergence behavior or total computational time. A constant **CFL of 1.0** was maintained without adaptation at the final simulation to ensure a steady path toward convergence. The simulation reached a strict convergence criterion of $10^{-9}$. 
+While I explored an adaptive CFL strategy—testing across a range of values ($0.1, 1, 2,$ and $10$)—the results showed negligible improvements in either convergence behavior or total computational time. A constant **CFL of 1.0** was maintained without adaptation at the final simulation to ensure a steady path toward convergence. The simulation reached a strict convergence criterion of $10^{-7}$. 
 
-<img width="1123" height="670" alt="Screenshot from 2026-03-09 17-20-09" src="https://github.com/user-attachments/assets/c2078b32-6faa-44ba-ba27-d3d941f1934c" />
-
+<img width="1291" height="990" alt="image" src="https://github.com/user-attachments/assets/85532467-b9cd-46d4-8f16-465b0e2097e7" />
 
 ## Results and Discussion
 
-Experimental data in<img width="1102" height="469" alt="Screenshot from 2026-03-25 12-36-39" src="https://github.com/user-attachments/assets/620c5e97-106d-4188-be59-1b3aa8e52f19" />
-dicate that the "potential core" of the jet is preserved for approximately **6D**. The SU2 is quite close to these findings:
+Experimental data indicate that the "potential core" of the jet is preserved for approximately **6D**. The SU2 is quite close to these findings:
 
 <img width="1629" height="881" alt="Screenshot from 2026-03-10 02-14-22" src="https://github.com/user-attachments/assets/1ff74b54-ea78-4f27-82c0-3a18a5f3b2af" />
 
@@ -101,4 +99,5 @@ Convergence history of the modified mesh refineletn aronf the jet diameter
 * **Reference Velocity:** SU2 utilizes the initialization velocity as a reference; this must be carefully considered when setting up ambient flow conditions. Als,o thimakeske it very difficult to reach near flow velocity for the farfield condition in external flow.
 * **Boundary Proximity:** Far-field boundaries must be sufficiently distant to ensure the jet decays naturally, preventing unphysical backflow that causes oscillations.
 * **Stability Tip:** The inclusion of an **upstream section** is vital. It accounts for the "suction" effect created by the jet entrainment. Without this extra buffer, backflow at the inlet often causes divergence or unphysical results.
+* * **CFL Courant number:** for a refined mesh, the simulation is more stable at higher CFL numbers
 
