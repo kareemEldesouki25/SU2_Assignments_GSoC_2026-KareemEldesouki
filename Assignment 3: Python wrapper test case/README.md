@@ -23,6 +23,9 @@ while (time < max_physical_time):
     # ... simulation steps ...
     time += deltaT  # Accumulate physical time
 ```
+<img width="2329" height="1325" alt="image" src="https://github.com/user-attachments/assets/4446ddee-e2d2-4148-9f1d-8d0b89883b50" />
+
+*Figure — Wall temperature over time iterations.*
 
 Riseduals
 <img width="1127" height="669" alt="Screenshot from 2026-03-11 02-15-15" src="https://github.com/user-attachments/assets/22c8c3e9-66f6-4261-961e-34f59a646d4a" />
@@ -36,3 +39,5 @@ save_frequency = 10  # Save every 10 iterations
 if (TimeIter % save_frequency == 0):
     SU2Driver.Output(TimeIter)
 ```
+
+### 3. Lessons learned
